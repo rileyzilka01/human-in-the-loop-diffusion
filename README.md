@@ -19,7 +19,7 @@ The installation script will install all 3 libraries
 
 These are custom libraries which each contain a component of the workflow
 
-Run the following to install
+Run the following to install, it should take about 20 minutes, at the end it will prompt you for docker information
 ```bash
 ./install.sh
 ```
