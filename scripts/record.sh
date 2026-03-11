@@ -1,41 +1,43 @@
 #!/bin/bash
 
 # running instructions
-# ./record.sh {dataset_name}
+# ./record.sh {dataset_name} {reset dataset flag}
+# reset dataset flag: 'restart' (requires sudo permissions)
 
 # example run
-# ./record.sh hitl_test
+# ./record.sh hitl_test restart
 
 TERMINAL_PIDS=()
 
 echo "Starting sam3 live server for segmentation..."
-gnome-terminal --title "seg_server" -- bash -c "
-echo 'Starting segmentation server...'
+gnome-terminal --title "seg_server" -- bash -c '
+exec -a seg_server
+echo "Starting segmentation server..."
 source hitld_venv/bin/activate
 cd sam3-live
 python3 live/server.py
-" -- "$@" &
+' -- "$@" &
 TERMINAL_PIDS+=($!)
 
 echo "Starting docker container for robot interaction and recording..."
-gnome-terminal --title "kinova_container" -- bash -c "
+gnome-terminal --title "kinova_container" -- bash -c '
 source hitld_venv/bin/activate
 cd kinova-diffusion/
 xhost +
 docker compose up -d
-echo 'Buffering container startup...'
+echo "Buffering container startup..."
 sleep 1
 
-restart='false'
-if [ \"\$2\" == 'restart' ]; then
+restart="false"
+if [ "$2" == 'restart' ]; then
   echo 'Deleting current data for this dataset, needs sudo permissions'
-  sudo rm -rf \"data/\$1\"
+  sudo rm -rf "data/$1"
 fi
 
-docker exec -it kinova-diffusion bash -ic \"python3 scripts/record.py \$1 && tmux attach\"
-echo 'User exited the container tmux session. Finishing host script...'
+docker exec -it kinova-diffusion bash -ic "python3 scripts/record.py $1 && tmux attach"
+echo "User exited the container tmux session. Finishing host script..."
 docker compose down
-" -- "$@" &
+' -- "$@" &
 TERMINAL_PIDS+=($!)
 
 echo "All terminals started."
@@ -47,7 +49,7 @@ while true; do
     if [[ "$key" == "k" ]]; then
         echo -e "\nKilling terminals and docker container..."
         # Kill all terminal process groups
-		pkill -9 -f "python3 live/server.py"
+		pkill -9 -f "seg_server"
 
         # Stop Docker container
         cd kinova-diffusion
