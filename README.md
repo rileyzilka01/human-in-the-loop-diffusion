@@ -29,6 +29,13 @@ Once you are installed you can run the following command to get into the workspa
 conda activate hitld
 ```
 
+## Training
+
+If you want to make new tasks for hitl-diffusion follow the steps
+1. fork the repo
+2. replace the repo link with yours in the install-core.sh script
+3. write tasks in the repository, git push or pull
+
 ## Scripts
 
 There are 7 different scripts defined below

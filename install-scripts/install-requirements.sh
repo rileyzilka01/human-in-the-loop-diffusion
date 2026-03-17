@@ -19,7 +19,13 @@ echo "Installing hitl-diffusion..."
 cd "$PROJECT_ROOT/hitl-diffusion/hitl-diffusion"
 # Added --no-build-isolation to ensure it sees the torch installed in CORE
 python3 -m pip install -e . --no-build-isolation
+cd ..
+python3 -m pip install -r requirements.txt
 cd "$PROJECT_ROOT"
+
+
+# Make sure torch is installed
+python3 -m pip install torch==2.7.0
 
 # --- 6. Install PyTorch3D (Simplified) ---
 echo "Installing PyTorch3D..."

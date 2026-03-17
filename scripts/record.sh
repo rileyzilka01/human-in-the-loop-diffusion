@@ -16,6 +16,10 @@ echo "Starting segmentation server..."
 source hitld_venv/bin/activate
 cd sam3-live
 python3 live/server.py
+
+echo
+echo "Process finished. Press enter to close..."
+read
 ' -- "$@" &
 TERMINAL_PIDS+=($!)
 
@@ -29,8 +33,8 @@ echo "Buffering container startup..."
 sleep 1
 
 restart="false"
-if [ "$2" == 'restart' ]; then
-  echo 'Deleting current data for this dataset, needs sudo permissions'
+if [ "$2" == "restart" ]; then
+  echo "Deleting current data for this dataset, needs sudo permissions"
   sudo rm -rf "data/$1"
 fi
 
@@ -49,7 +53,7 @@ while true; do
     if [[ "$key" == "k" ]]; then
         echo -e "\nKilling terminals and docker container..."
         # Kill all terminal process groups
-		pkill -9 -f "seg_server"
+		pkill -9 -f "python3 live/server.py"
 
         # Stop Docker container
         cd kinova-diffusion

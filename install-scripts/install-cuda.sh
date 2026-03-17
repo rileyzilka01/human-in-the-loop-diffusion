@@ -13,6 +13,9 @@ else
   echo "Current venv: $VIRTUAL_ENV"
 fi
 
+# Make sure ninja is installed
+python3 -m pip install ninja
+
 CUDA_VERSION="12.1"
 CUB_PATH="/opt/cub"
 CUDA_HOME=/usr/local/cuda-$CUDA_VERSION
@@ -58,6 +61,14 @@ export TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0 7.5 8.0 8.6+PTX 8.9"
 EOF
 else
     echo "[Checked] Environment variables already present in $BASHRC."
+fi
+
+echo "Verifying installation..."
+if command -v nvcc > /dev/null; then
+    nvcc --version | grep "release"
+else
+    echo "ERROR: nvcc not found in PATH. PyTorch3D build will fail."
+    exit 1
 fi
 
 # 5. Export variables for the CURRENT session
