@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # running instructions
-# ./convert.sh {dataset_name} {output_name}
+# ./convert.sh {model} {dataset_name} {output_name}
 
 # example run
-# ./convert.sh hitl_test hitl_test_converted
+# ./convert.sh hitl_hgd hitl_test hitl_test_converted
 
 TERMINAL_PIDS=()
 
@@ -18,7 +18,7 @@ input_path="$(pwd)/kinova-diffusion/data"
 output_path="$(pwd)/hitl-diffusion/hitl-diffusion/data"
 
 cd hitl-diffusion
-python scripts/convert_real_robot_data.py "$1" "$2" "$input_path" "$output_path"
+python scripts/convert_real_robot_data.py "$1" "$2" "$3" "$input_path" "$output_path"
 
 echo
 echo "Process finished. Press enter to close..."

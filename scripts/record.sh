@@ -1,27 +1,29 @@
 #!/bin/bash
 
 # running instructions
-# ./record.sh {dataset_name} {reset dataset flag}
+# ./record.sh {model} {dataset_name} {reset dataset flag}
 # reset dataset flag: 'restart' (requires sudo permissions)
 
 # example run
-# ./record.sh hitl_test restart
+# ./record.sh hitl_hgd hitl_test restart
 
 TERMINAL_PIDS=()
 
-echo "Starting sam3 live server for segmentation..."
-gnome-terminal --title "seg_server" -- bash -c '
-exec -a seg_server
-echo "Starting segmentation server..."
-source hitld_venv/bin/activate
-cd sam3-live
-python3 live/server.py
+if [ "$1" == "hitl_hgd" ]; then
+    echo "Starting sam3 live server for segmentation..."
+    gnome-terminal --title "seg_server" -- bash -c '
+    exec -a seg_server
+    echo "Starting segmentation server..."
+    source hitld_venv/bin/activate
+    cd sam3-live
+    python3 live/server.py
 
-echo
-echo "Process finished. Press enter to close..."
-read
-' -- "$@" &
-TERMINAL_PIDS+=($!)
+    echo
+    echo "Process finished. Press enter to close..."
+    read
+    ' -- "$@" &
+    TERMINAL_PIDS+=($!)
+fi
 
 echo "Starting docker container for robot interaction and recording..."
 gnome-terminal --title "kinova_container" -- bash -c '
@@ -33,12 +35,12 @@ echo "Buffering container startup..."
 sleep 1
 
 restart="false"
-if [ "$2" == "restart" ]; then
+if [ "$3" == "restart" ]; then
   echo "Deleting current data for this dataset, needs sudo permissions"
-  sudo rm -rf "data/$1"
+  sudo rm -rf "data/$2"
 fi
 
-docker exec -it kinova-diffusion bash -ic "python3 scripts/record.py $1 && tmux attach"
+docker exec -it kinova-diffusion bash -ic "python3 scripts/record.py $1 $2 && tmux attach"
 echo "User exited the container tmux session. Finishing host script..."
 docker compose down
 ' -- "$@" &
@@ -53,7 +55,9 @@ while true; do
     if [[ "$key" == "k" ]]; then
         echo -e "\nKilling terminals and docker container..."
         # Kill all terminal process groups
-		pkill -9 -f "python3 live/server.py"
+        if [ "$1" == "hitl_hgd" ]; then
+		    pkill -9 -f "python3 live/server.py"
+        fi
 
         # Stop Docker container
         cd kinova-diffusion
