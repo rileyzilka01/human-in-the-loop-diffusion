@@ -50,7 +50,7 @@ docker compose up -d
 echo "Buffering container startup..."
 sleep 1
 
-docker exec -it kinova-diffusion bash -ic "python3 scripts/inference.py $1 $7 && tmux attach"
+docker exec -it kinova-diffusion bash -ic "python3 scripts/inference.py $1 $7 $3_$4 && tmux attach"
 echo "User exited the container tmux session. Finishing host script..."
 docker compose down
 ' -- "$@" &
