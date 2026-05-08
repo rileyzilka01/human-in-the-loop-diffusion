@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # running instructions
-# ./eval.sh {model} {algorithm} {task} {id_number} {seed} {gpu} {server}
+# ./eval.sh {model} {algorithm} {task} {id_number} {seed} {gpu} {server} {flag for ood or id eval}
 # server is 0 or 1, 1 is for remote, just need to change ip in hitl-diffusion
 
 # example run
-# ./eval.sh hitl_hgd hitl hitl_test 0001 0 0 0
+# ./eval.sh hitl_hgd hitl hitl_test 0001 0 0 0 1
 
 TERMINAL_PIDS=()
 
@@ -50,7 +50,15 @@ docker compose up -d
 echo "Buffering container startup..."
 sleep 1
 
-docker exec -it kinova-diffusion bash -ic "python3 scripts/inference.py $1 $7 $3_$4 && tmux attach"
+if [ "$8" -eq 1 ]; then
+    label="ood"
+elif [ "$8" -eq 0 ]; then
+    label="id"
+else
+    label="unknown"
+fi
+
+docker exec -it kinova-diffusion bash -ic "python3 scripts/inference.py $1 $7 $3_$4_$label && tmux attach"
 echo "User exited the container tmux session. Finishing host script..."
 docker compose down
 ' -- "$@" &
